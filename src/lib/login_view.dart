@@ -1,4 +1,13 @@
+/// Author: Yiannis Bourkelis
+/// Talk:
+/// live coding Σχεδιασμός cross platform login screen με το flutter Part 1/2
+/// https://www.youtube.com/watch?v=-XO0l9H40Ic
+///
+/// live coding Σχεδιασμός cross platform login screen με το flutter Part 2/2
+///
+
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -8,7 +17,8 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  var obscurePasswordText = false;
+  var obscurePasswordText = true;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +27,6 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 39, 39, 39),
       body: Align(
-        //vertical and horizontal aligment of content
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -39,53 +48,66 @@ class _LoginViewState extends State<LoginView> {
                   height: 30,
                 ),
                 Form(
+                    key: _formKey,
                     child: Column(
-                  children: [
-                    TextFormField(
-                      keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email_rounded),
-                        label: const Text('Email'),
-                        labelStyle: const TextStyle(
-                          color: Color.fromARGB(255, 81, 210, 242),
+                      children: [
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter the email';
+                            }
+                            return null;
+                          },
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.email_rounded),
+                            label: const Text('Email'),
+                            labelStyle: const TextStyle(
+                              color: Color.fromARGB(255, 81, 210, 242),
+                            ),
+                            fillColor: const Color.fromARGB(255, 4, 55, 97),
+                            filled: true,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30)),
+                          ),
                         ),
-                        fillColor: const Color.fromARGB(255, 4, 55, 97),
-                        filled: true,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    TextFormField(
-                      obscureText: obscurePasswordText,
-                      keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock_clock_rounded),
-                        suffixIcon: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                obscurePasswordText = !obscurePasswordText;
-                              });
-                            },
-                            child: Icon(obscurePasswordText
-                                ? Icons.remove_red_eye_outlined
-                                : Icons.remove_red_eye)),
-                        label: const Text('Password'),
-                        labelStyle: const TextStyle(
-                          color: Color.fromARGB(255, 81, 210, 242),
+                        const SizedBox(
+                          height: 30,
                         ),
-                        fillColor: const Color.fromARGB(255, 4, 55, 97),
-                        filled: true,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                      ),
-                    ),
-                  ],
-                )),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter the password';
+                            }
+                            return null;
+                          },
+                          obscureText: obscurePasswordText,
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.lock_clock_rounded),
+                            suffixIcon: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    obscurePasswordText = !obscurePasswordText;
+                                  });
+                                },
+                                child: Icon(obscurePasswordText
+                                    ? Icons.remove_red_eye_outlined
+                                    : Icons.remove_red_eye)),
+                            label: const Text('Password'),
+                            labelStyle: const TextStyle(
+                              color: Color.fromARGB(255, 81, 210, 242),
+                            ),
+                            fillColor: const Color.fromARGB(255, 4, 55, 97),
+                            filled: true,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30)),
+                          ),
+                        ),
+                      ],
+                    )),
                 const SizedBox(
                   height: 16,
                 ),
@@ -97,10 +119,27 @@ class _LoginViewState extends State<LoginView> {
                                 MaterialStatePropertyAll(Colors.green[800]!),
                             foregroundColor:
                                 const MaterialStatePropertyAll(Colors.white)),
-                        onPressed: () {},
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            // If the form is valid, display a snackbar. In the real world,
+                            // you'd often call a server or save the information in a database.
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Login...')),
+                            );
+                          }
+                        },
                         child: const Text('Login'))),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final Uri supportUrl = Uri.parse('https://google.com');
+                    await launchUrl(supportUrl).then((value) {
+                      if (value == false) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Could not launch url')));
+                      }
+                    });
+                  },
                   child: const Text('Forgot your password?'),
                 ),
                 const Row(
@@ -135,7 +174,16 @@ class _LoginViewState extends State<LoginView> {
                               Color.fromARGB(255, 40, 76, 154)),
                           foregroundColor:
                               MaterialStatePropertyAll(Colors.white)),
-                      onPressed: () {},
+                      onPressed: () async {
+                        final Uri supportUrl = Uri.parse('https://google.com');
+                        await launchUrl(supportUrl).then((value) {
+                          if (value == false) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Could not launch url')));
+                          }
+                        });
+                      },
                       child: const Text('Create account')),
                 )
               ],
