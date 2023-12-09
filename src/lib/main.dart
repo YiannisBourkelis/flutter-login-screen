@@ -4,7 +4,7 @@
 /// https://www.youtube.com/watch?v=-XO0l9H40Ic
 ///
 /// live coding Σχεδιασμός cross platform login screen με το flutter Part 2/2
-///
+/// https://www.youtube.com/watch?v=CSYz0s0C6Eo
 ///
 import 'package:flutter/material.dart';
 import 'package:flutterloginpage/login_view.dart';
